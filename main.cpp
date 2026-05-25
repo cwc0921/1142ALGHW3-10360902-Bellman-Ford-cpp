@@ -34,26 +34,31 @@ Result bellmanFord(int n, const vector<Edge>& edges, int source) {
     res.parent.assign(n, -1);
     res.hasNegativeCycle = false;
 
-    // TODO:
-    // Step 1. 初始化 source 的距離為 0
-    // res.dist[source] = 0;
+    res.dist[source] = 0;
 
-    // TODO:
-    // Step 2. 進行 n-1 輪鬆弛 (relaxation)
-    //
-    // 外圈：跑 n-1 次
-    // 內圈：對每一條邊 (u, v, w)
-    // 若 dist[u] + w < dist[v]，則更新：
-    //   dist[v] = dist[u] + w
-    //   parent[v] = u
-    //
-    // 注意：
-    // 只有當 dist[u] 不是 INF 時才能鬆弛
+    for (int i = 0; i < n - 1; ++i) {
+        for (const auto& edge : edges) {
+            int u = edge.u;
+            int v = edge.v;
+            int w = edge.w;
+            
+            if (res.dist[u] != INF && res.dist[u] + w < res.dist[v]) {
+                res.dist[v] = res.dist[u] + w;
+                res.parent[v] = u;
+            }
+        }
+    }
 
-    // TODO:
-    // Step 3. 再檢查一次所有邊
-    // 若還能再鬆弛，表示存在負環
-    // res.hasNegativeCycle = true;
+    for (const auto& edge : edges) {
+        int u = edge.u;
+        int v = edge.v;
+        int w = edge.w;
+        
+        if (res.dist[u] != INF && res.dist[u] + w < res.dist[v]) {
+            res.hasNegativeCycle = true;
+            break; 
+        }
+    }
 
     return res;
 }
@@ -63,10 +68,16 @@ Result bellmanFord(int n, const vector<Edge>& edges, int source) {
 // 例如：0 -> 2 -> 1 -> 3 -> 5
 // ==============================
 void printPath(const vector<int>& parent, int target) {
-    // TODO:
-    // 若 target == -1，直接 return
-    // 否則先遞迴印 parent[target]
-    // 再印出 target
+    if (target == -1) {
+        return;
+    }
+    
+    if (parent[target] != -1) {
+        printPath(parent, parent[target]);
+        cout << " -> ";
+    }
+    
+    cout << target;
 }
 
 // ==============================
@@ -111,8 +122,7 @@ int main() {
         } else {
             cout << ans.dist[target] << "\n";
             cout << "Path: ";
-            // TODO:
-            // 呼叫 printPath(ans.parent, target);
+            printPath(ans.parent, target);
             cout << "\n";
         }
 
